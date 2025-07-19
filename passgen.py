@@ -1,4 +1,6 @@
 import random
+import hashlib
+import requests
 
 def user_input_validation():
     while True:
@@ -42,16 +44,41 @@ def random_pass_gen(length,use_special_char):
         for i in range(0,length):
             password += chr(random.randint(33,126))
     else:
-        for i in range(0,length):
+        i = 0
+        while i < length:
             temp = random.randint(33,126)
             if (temp > 47 and temp < 58) or (temp > 64 and temp < 91) or (temp > 96 and temp < 123):
                 password += chr(temp)
+                i += 1
+    
+    return password
+
+def pwned_pass(password):
+    hash_pass = hashlib.sha1(password.encode('utf-8')).hexdigest().upper()
+    pfx = hash_pass[:5]
+    sfx = hash_pass[5:]
+    url = f'https://api.pwnedpasswords.com/range/{pfx}'
+    response = requests.get(url)
+    hashes = (line.split(':') for line in response.text.splitlines())
+    for rsfx,count in hashes:
+        if rsfx == sfx:
+            return int(count)
+        
+    return 0
+
+def get_not_breached(password,length,use_special_char):
+    count = pwned_pass(password)
+    while count > 0:
+        password = random_pass_gen(length,use_special_char)
+        count = pwned_pass(password)
+
     
     return password
 
 def main():
     a,b = user_input_validation()
-    password = random_pass_gen(a,b)
+    temp = random_pass_gen(a,b)
+    password = get_not_breached(temp,a,b)
     print(password)
 
 if __name__ == "__main__":
