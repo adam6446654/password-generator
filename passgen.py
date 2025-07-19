@@ -1,3 +1,5 @@
+import random
+
 def user_input_validation():
     while True:
         pass_1 = True
