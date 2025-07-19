@@ -23,3 +23,16 @@ def user_input_validation():
         
         if pass_1 == True and pass_2 == True:
             return length,use_special_char
+
+def random_pass_gen(length,use_special_char):
+    password = ""
+    if use_special_char == True:
+        for i in range(0,length):
+            password += chr(random.randint(33,126))
+    else:
+        for i in range(0,length):
+            temp = random.randint(33,126)
+            if (temp > 47 and temp < 58) or (temp > 64 and temp < 91) or (temp > 96 and temp < 123):
+                password += chr(temp)
+    
+    return password
